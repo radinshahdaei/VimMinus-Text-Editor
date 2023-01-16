@@ -90,20 +90,11 @@ int main()
         if (strcmp(string, "createfile") == 0) // createfile
         {
             clear();
-            scanf("%s", string);
-
-            if (strcmp(string, "-f") == 0)
-            {
-                getchar();
-
-                clear();
-                scanf("%[^\n]", string);
-                createfile(corstr(string));
-            }
-            else
+            if (!(scanf(" -f %[^\n]", string)))
             {
                 printf("Invalid input.\n");
             }
+            createfile(corstr(string));
         }
 
         else if (strcmp(string, "exit") != 0) // invalid input
