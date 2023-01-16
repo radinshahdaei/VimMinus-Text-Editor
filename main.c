@@ -6,6 +6,9 @@
 #include "correction.h"
 
 char string[100] = {};
+char add[100] = {};
+int a;
+int b;
 void clear() // clear string
 {
     for (int i = 0; i < 100; i++)
@@ -40,35 +43,37 @@ void createfile(char *string) // createfile
     fclose(file);
 }
 
-void insert(char directory[], char string[], int line, int start)
+void insertstr(char dir[], char string[], int line, int start)
 {
-    char *add = "/Users/Radin/School/Programming/project-radinshahdaei";
-    int addlen = strlen(add);
-    int len = strlen(directory);
-    char address[200];
-    for (int i = 0; i < addlen; i++) // creating address for file
+    int len = strlen(dir);
+    char buff[len - 1];
+
+    for (int i = 0; i < len - 1; i++)
     {
-        address[i] = add[i];
-    }
-    for (int i = 0; i < len; i++)
-    {
-        address[addlen + i] = directory[i];
+        buff[i] = dir[i + 1];
     }
 
-    if (fopen(address, "r") == 0)
+    if (fopen(buff, "r") == 0) // check file
     {
         printf("File does not exist.\n");
     }
     else
     {
         FILE *file;
-        file = fopen(address, "w");
+        file = fopen(buff, "r");
+        char str1[1000] = {'\0'};
+        char str2[1000] = {'\0'};
         int counter1 = 1;
         int counter2 = 0;
-        char c;
-        while (counter1 != line && counter2 != start)
+        int istr1 = 0;
+        int istr2 = 0;
+        char c = '\0';
+
+        while (counter1 != line || counter2 != start) // going to location
         {
             c = fgetc(file);
+            str1[istr1] = c; // before insert string
+            istr1++;
             counter2++;
             if (c == '\n')
             {
@@ -76,12 +81,25 @@ void insert(char directory[], char string[], int line, int start)
                 counter2 = 0;
             }
         }
-        fputs(string, file);
+
+        c = fgetc(file); // after insert string
+        while (c != EOF)
+        {
+            str2[istr2] = c;
+            istr2++;
+            c = fgetc(file);
+        }
+
+        fclose(file);
+        file = fopen(buff, "w");
+        fprintf(file, "%s%s%s", str1, string, str2);
+        fclose(file);
     }
 }
 
 int main()
 {
+
     while (strcmp(string, "exit") != 0)
     {
         clear();
@@ -90,11 +108,27 @@ int main()
         if (strcmp(string, "createfile") == 0) // createfile
         {
             clear();
-            if (!(scanf(" -f %[^\n]", string)))
+            if (!(scanf(" -file %s", string)))
             {
                 printf("Invalid input.\n");
             }
-            createfile(corstr(string));
+            else
+            {
+                createfile(corstr(string));
+            }
+        }
+
+        else if (strcmp(string, "insertstr") == 0) // insertstr
+        {
+            clear();
+            if (!(scanf(" -file %s -str %s -pos %d:%d", add, string, &a, &b)))
+            {
+                printf("Invalid input.\n");
+            }
+            else
+            {
+                insertstr(corstr(add), corstr(string), a, b);
+            }
         }
 
         else if (strcmp(string, "exit") != 0) // invalid input
