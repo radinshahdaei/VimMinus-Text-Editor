@@ -57,6 +57,7 @@ void insertstr(char dir[], char string[], int line, int start)
     {
         printf("File does not exist.\n");
     }
+
     else
     {
         FILE *file;
@@ -72,7 +73,7 @@ void insertstr(char dir[], char string[], int line, int start)
         while (counter1 != line || counter2 != start) // going to location
         {
             c = fgetc(file);
-            str1[istr1] = c; // before insert string
+            str1[istr1] = c; // string 1
             istr1++;
             counter2++;
             if (c == '\n')
@@ -82,7 +83,7 @@ void insertstr(char dir[], char string[], int line, int start)
             }
         }
 
-        c = fgetc(file); // after insert string
+        c = fgetc(file); // string 2
         while (c != EOF)
         {
             str2[istr2] = c;
@@ -97,8 +98,41 @@ void insertstr(char dir[], char string[], int line, int start)
     }
 }
 
+void cat(char *dir)
+{
+    int len = strlen(dir);
+    char buff[len - 1];
+
+    for (int i = 0; i < len - 1; i++)
+    {
+        buff[i] = dir[i + 1];
+    }
+    if (fopen(buff, "r") == 0) // check file
+    {
+        printf("File does not exist.\n");
+    }
+
+    else
+    {
+        char c;
+        FILE *file;
+        file = fopen(buff, "r");
+        c = fgetc(file);
+        while (c != EOF)
+        {
+            printf("%c", c);
+            c = fgetc(file);
+        }
+        fclose(file);
+    }
+}
+
 int main()
 {
+    // char *str = malloc(100 * sizeof(char));
+    // scanf("%s ", string);
+    // str = get_string(str);
+    // printf("%s", corstr(str));
 
     while (strcmp(string, "exit") != 0)
     {
@@ -131,6 +165,18 @@ int main()
             }
         }
 
+        else if (strcmp(string, "cat") == 0) // cat
+        {
+            clear();
+            if (!(scanf(" -file %s", string)))
+            {
+                printf("Invalid input.\n");
+            }
+            else
+            {
+                cat(corstr(string));
+            }
+        }
         else if (strcmp(string, "exit") != 0) // invalid input
         {
             scanf("%[^\n]", string);

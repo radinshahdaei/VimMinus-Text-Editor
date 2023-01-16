@@ -75,3 +75,21 @@ char *corstr(char *s)
     }
     return s;
 }
+
+char *get_string(char *string)
+{
+    int counter = 0;
+    char flag = 'T';
+    string[counter] = getchar();
+    counter++;
+    while (flag == 'T')
+    {
+        string[counter] = getchar();
+        if (string[counter] == '"' && string[counter - 1] != 92)
+        {
+            flag = 'F';
+        }
+        counter++;
+    }
+    return string;
+}
