@@ -6,14 +6,51 @@
 #include "correction.h"
 
 char string[100] = {};
-char add[100] = {};
-int a;
-int b;
-void clear() // clear string
+char s[15][50] = {};
+
+void clear() // clear strings
 {
     for (int i = 0; i < 100; i++)
     {
         string[i] = '\0';
+    }
+    for (int i = 0; i < 15; i++)
+    {
+        for (int j = 0; j < 5; j++)
+        {
+            s[i][j] = '\0';
+        }
+    }
+}
+
+void input() // input function
+{
+    scanf("%[^\n]%*c", string);
+    int len = strlen(string);
+    int counter1 = 0;
+    int counter2 = 0;
+    int counterq = 0;
+    int flag = 0;
+    s[0][0] = string[0];
+    counter2++;
+    for (int i = 1; i < len; i++)
+    {
+        if (string[i] == 32 && counterq % 2 == 0)
+        {
+            counter1++;
+            counter2 = 0;
+        }
+        else if (string[i] == '"' && string[i - 1] != 92)
+        {
+            counterq++;
+            s[counter1][counter2] = string[i];
+            counter2++;
+        }
+        else
+        {
+            s[counter1][counter2] = string[i];
+            counter2++;
+        }
     }
 }
 
@@ -43,7 +80,7 @@ void createfile(char *string) // createfile
     fclose(file);
 }
 
-void insertstr(char dir[], char string[], int line, int start)
+void insertstr(char dir[], char string[], int line, int start) // insertstr
 {
     int len = strlen(dir);
     char buff[len - 1];
@@ -98,7 +135,7 @@ void insertstr(char dir[], char string[], int line, int start)
     }
 }
 
-void cat(char *dir)
+void cat(char *dir) // cat
 {
     int len = strlen(dir);
     char buff[len - 1];
@@ -129,57 +166,52 @@ void cat(char *dir)
 
 int main()
 {
-    // char *str = malloc(100 * sizeof(char));
-    // scanf("%s ", string);
-    // str = get_string(str);
-    // printf("%s", corstr(str));
-
-    while (strcmp(string, "exit") != 0)
+    while (strcmp(s[0], "exit") != 0)
     {
         clear();
-        scanf("%s", string);
+        input();
 
-        if (strcmp(string, "createfile") == 0) // createfile
+        if (strcmp(s[0], "createfile") == 0) // createfile
         {
-            clear();
-            if (!(scanf(" -file %s", string)))
+            if (strcmp(s[1], "-file") != 0)
             {
                 printf("Invalid input.\n");
             }
             else
             {
-                createfile(corstr(string));
+                createfile(corstr(s[2]));
             }
         }
 
-        else if (strcmp(string, "insertstr") == 0) // insertstr
+        else if (strcmp(s[0], "insertstr") == 0) // insertstr
         {
-            clear();
-            if (!(scanf(" -file %s -str %s -pos %d:%d", add, string, &a, &b)))
+
+            if (strcmp(s[1], "-file") != 0 || strcmp(s[3], "-str") != 0 || strcmp(s[5], "-pos") != 0)
             {
                 printf("Invalid input.\n");
             }
             else
             {
-                insertstr(corstr(add), corstr(string), a, b);
+
+                insertstr(corstr(s[2]), corstr(s[4]), pos(s[6], 1), pos(s[6], 2)); // need to make pos function
             }
         }
 
-        else if (strcmp(string, "cat") == 0) // cat
+        else if (strcmp(s[0], "cat") == 0) // cat
         {
-            clear();
-            if (!(scanf(" -file %s", string)))
+
+            if (strcmp(s[1], "-file") != 0)
             {
                 printf("Invalid input.\n");
             }
             else
             {
-                cat(corstr(string));
+                cat(corstr(s[2]));
             }
         }
-        else if (strcmp(string, "exit") != 0) // invalid input
+
+        else if (strcmp(s[0], "exit") != 0) // invalid input
         {
-            scanf("%[^\n]", string);
             printf("Invalid input.\n");
         }
     }

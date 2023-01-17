@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
 
 int sn(char *s)
 {
@@ -92,4 +93,42 @@ char *get_string(char *string)
         counter++;
     }
     return string;
+}
+
+int change(char *string)
+{
+    int len = strlen(string);
+    int ans = 0;
+    for (int i = 0; i < len; i++)
+    {
+        ans = ans * 10 + (string[i] - 48);
+    }
+    return ans;
+}
+
+int pos(char *string, int mode)
+{
+    int len = strlen(string);
+    int ans = 0;
+    int a;
+    if (mode == 1)
+    {
+        int counter = 0;
+        while (string[counter] != ':')
+        {
+            ans = ans * 10 + (string[counter] - 48);
+            counter++;
+        }
+    }
+    if (mode == 2)
+    {
+        int counter = len - 1;
+        while (string[counter] != ':')
+        {
+            a = (string[counter] - 48);
+            ans = ans + a * (int)pow(10, len - counter - 1);
+            counter--;
+        }
+    }
+    return ans;
 }
