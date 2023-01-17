@@ -207,6 +207,79 @@ void removestr(char dir[], int line, int start, int size, char mode)
     }
 }
 
+void copystr(char dir[], int line, int start, int size, char mode)
+{
+    int len = strlen(dir);
+    char buff[len - 1];
+
+    for (int i = 0; i < len - 1; i++)
+    {
+        buff[i] = dir[i + 1];
+    }
+
+    if (fopen(buff, "r") == 0) // check file
+    {
+        printf("File does not exist.\n");
+    }
+
+    else
+    {
+        FILE *file;
+        file = fopen(buff, "r");
+        char str1[1000] = {'\0'};
+        char str2[1000] = {'\0'};
+        int counter1 = 1;
+        int counter2 = 0;
+        int istr1 = 0;
+        int istr2 = 0;
+        char c = '\0';
+
+        while (counter1 != line || counter2 != start) // going to location
+        {
+            c = fgetc(file);
+            str1[istr1] = c; // string 1
+            istr1++;
+            counter2++;
+            if (c == '\n')
+            {
+                counter1++;
+                counter2 = 0;
+            }
+        }
+
+        c = fgetc(file); // string 2
+        while (c != EOF)
+        {
+            str2[istr2] = c;
+            istr2++;
+            c = fgetc(file);
+        }
+
+        fclose(file);
+
+        char copy[100] = {};
+        file = fopen(".temp.txt", "w");
+        if (mode == 'b')
+        {
+            int counter = 0;
+            for (int i = istr1 - size; i < istr1; i++)
+            {
+                copy[counter] = str1[i];
+                counter++;
+            }
+        }
+        if (mode == 'f')
+        {
+            for (int i = 0; i < size; i++)
+            {
+                copy[i] = str2[i];
+            }
+        }
+        fprintf(file, "%s", copy);
+        fclose(file);
+    }
+}
+
 void cat(char *dir) // cat
 {
     int len = strlen(dir);
@@ -238,6 +311,7 @@ void cat(char *dir) // cat
 
 int main()
 {
+    // copystr("/root/file.txt", 2, 3, 5, 'f');
     while (strcmp(s[0], "exit") != 0)
     {
         clear();
@@ -295,6 +369,65 @@ int main()
             else
             {
                 cat(corstr(s[2]));
+            }
+        }
+
+        else if (strcmp(s[0], "copystr") == 0) // copystr
+        {
+            if (strcmp(s[1], "-file") != 0 || strcmp(s[3], "-pos") != 0 || strcmp(s[5], "-size") != 0)
+            {
+                printf("Invalid input.\n");
+            }
+            else if (strcmp(s[7], "-b") == 0 || strcmp(s[7], "-f") == 0)
+            {
+                copystr(corstr(s[2]), pos(s[4], 1), pos(s[4], 2), change(s[6]), s[7][1]);
+            }
+            else
+            {
+                printf("Invalid input.\n");
+            }
+        }
+
+        else if (strcmp(s[0], "cutstr") == 0) // cutstr
+        {
+            if (strcmp(s[1], "-file") != 0 || strcmp(s[3], "-pos") != 0 || strcmp(s[5], "-size") != 0)
+            {
+                printf("Invalid input.\n");
+            }
+            else if (strcmp(s[7], "-b") == 0 || strcmp(s[7], "-f") == 0)
+            {
+                copystr(corstr(s[2]), pos(s[4], 1), pos(s[4], 2), change(s[6]), s[7][1]);
+                removestr(corstr(s[2]), pos(s[4], 1), pos(s[4], 2), change(s[6]), s[7][1]);
+            }
+            else
+            {
+                printf("Invalid input.\n");
+            }
+        }
+
+        else if (strcmp(s[0], "pastestr") == 0) // pastestr
+        {
+            if (strcmp(s[1], "-file") != 0 || strcmp(s[3], "-pos") != 0)
+            {
+                printf("Invalid input.\n");
+            }
+            else
+            {
+                FILE *file;
+                file = fopen(".temp.txt", "r");
+                char paste[100];
+                char c;
+                int counter = 0;
+                c = fgetc(file);
+                while (c != EOF)
+                {
+                    paste[counter] = c;
+                    counter++;
+                    c = fgetc(file);
+                }
+
+                fclose(file);
+                insertstr(corstr(s[2]), paste, pos(s[4], 1), pos(s[4], 2)); // need to make pos function
             }
         }
 
