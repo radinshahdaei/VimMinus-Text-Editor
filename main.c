@@ -135,6 +135,78 @@ void insertstr(char dir[], char string[], int line, int start) // insertstr
     }
 }
 
+void removestr(char dir[], int line, int start, int size, char mode)
+{
+    int len = strlen(dir);
+    char buff[len - 1];
+
+    for (int i = 0; i < len - 1; i++)
+    {
+        buff[i] = dir[i + 1];
+    }
+
+    if (fopen(buff, "r") == 0) // check file
+    {
+        printf("File does not exist.\n");
+    }
+    else
+    {
+        FILE *file;
+        file = fopen(buff, "r");
+        char str1[1000] = {'\0'};
+        char str2[1000] = {'\0'};
+        int counter1 = 1;
+        int counter2 = 0;
+        int istr1 = 0;
+        int istr2 = 0;
+        char c = '\0';
+
+        while (counter1 != line || counter2 != start) // going to location
+        {
+            c = fgetc(file);
+            str1[istr1] = c; // string 1
+            istr1++;
+            counter2++;
+            if (c == '\n')
+            {
+                counter1++;
+                counter2 = 0;
+            }
+        }
+
+        c = fgetc(file); // string 2
+        while (c != EOF)
+        {
+            str2[istr2] = c;
+            istr2++;
+            c = fgetc(file);
+        }
+
+        fclose(file);
+        if (mode == 'b') // mode -b
+        {
+            int pcounter = 0;
+            while (pcounter != size + 1)
+            {
+                str1[istr1] = '\0';
+                istr1--;
+                pcounter++;
+            }
+        }
+        else if (mode == 'f') // mode -f
+        {
+            for (int i = 0; i < istr2 - size; i++)
+            {
+                str2[i] = str2[i + size];
+            }
+            str2[istr2 - size] = '\0';
+        }
+        file = fopen(buff, "w");
+        fprintf(file, "%s%s", str1, str2);
+        fclose(file);
+    }
+}
+
 void cat(char *dir) // cat
 {
     int len = strlen(dir);
@@ -194,6 +266,22 @@ int main()
             {
 
                 insertstr(corstr(s[2]), corstr(s[4]), pos(s[6], 1), pos(s[6], 2)); // need to make pos function
+            }
+        }
+
+        else if (strcmp(s[0], "removestr") == 0) // remove str
+        {
+            if (strcmp(s[1], "-file") != 0 || strcmp(s[3], "-pos") != 0 || strcmp(s[5], "-size") != 0)
+            {
+                printf("Invalid input.\n");
+            }
+            else if (strcmp(s[7], "-b") == 0 || strcmp(s[7], "-f") == 0)
+            {
+                removestr(corstr(s[2]), pos(s[4], 1), pos(s[4], 2), change(s[6]), s[7][1]);
+            }
+            else
+            {
+                printf("Invalid input.\n");
             }
         }
 
