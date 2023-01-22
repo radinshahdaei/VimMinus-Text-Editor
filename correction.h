@@ -132,3 +132,23 @@ int pos(char *string, int mode)
     }
     return ans;
 }
+
+int findinline(char *s, char *pat)
+{
+    int counter = 0;
+    int pcounter = 0;
+    int len = strlen(pat);
+    char *st = malloc((len) * sizeof(char));
+    while (s[counter] != '\0')
+    {
+        strncpy(st, &s[counter], len);
+        // printf("%s\n", st);
+        if (strcmp(pat, st) == 0)
+        {
+            // printf("%s\n", s);
+            pcounter++;
+        }
+        counter++;
+    }
+    return pcounter;
+}

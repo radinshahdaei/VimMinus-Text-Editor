@@ -16,7 +16,7 @@ void clear() // clear strings
     }
     for (int i = 0; i < 15; i++)
     {
-        for (int j = 0; j < 5; j++)
+        for (int j = 0; j < 50; j++)
         {
             s[i][j] = '\0';
         }
@@ -280,6 +280,44 @@ void copystr(char dir[], int line, int start, int size, char mode)
     }
 }
 
+int grep(char pat[], char directory[], int mode)
+{
+    int counter = 0;
+    int ans = 0;
+    FILE *file;
+    char line[100] = {};
+    file = fopen(directory + 1, "r");
+    fgets(line, 100, file);
+    while (line[0] != '\0') // line
+    {
+        ans = findinline(line, pat);
+        if (ans != 0)
+        {
+            if (mode == 1)
+            {
+                printf("%s: %s", directory + 1, line);
+            }
+            counter++;
+        }
+        ans = 0;
+        for (int i = 0; i < 100; i++)
+        {
+            line[i] = '\0';
+        }
+        fgets(line, 100, file);
+    }
+    if (mode == 1)
+    {
+        printf("\n");
+    }
+
+    if (counter != 0 && mode == 2)
+    {
+        printf("%s\n", directory + 1);
+    }
+    return counter;
+}
+
 void cat(char *dir) // cat
 {
     int len = strlen(dir);
@@ -307,11 +345,11 @@ void cat(char *dir) // cat
         }
         fclose(file);
     }
+    printf("\n");
 }
 
 int main()
 {
-    // copystr("/root/file.txt", 2, 3, 5, 'f');
     while (strcmp(s[0], "exit") != 0)
     {
         clear();
@@ -425,15 +463,54 @@ int main()
                     counter++;
                     c = fgetc(file);
                 }
-
                 fclose(file);
                 insertstr(corstr(s[2]), paste, pos(s[4], 1), pos(s[4], 2)); // need to make pos function
             }
         }
 
-        else if (strcmp(s[0], "exit") != 0) // invalid input
+        else if (strcmp(s[0], "grep") == 0)
         {
-            printf("Invalid input.\n");
+
+            int mode;
+            int ans;
+            int plus;
+            int counter = 0;
+            if (strcmp(s[1], "-l") == 0) // mode 2
+            {
+                mode = 2;
+                plus = 1;
+            }
+            else if (strcmp(s[1], "-c") == 0) // mode 3
+            {
+                mode = 3;
+                plus = 1;
+            }
+            else // mode 1
+            {
+                mode = 1;
+                plus = 0;
+            }
+            if (strcmp(s[1 + plus], "-str") != 0 || strcmp(s[3 + plus], "-files") != 0)
+            {
+                printf("Invalid input.\n");
+            }
+            else
+            {
+                while (s[4 + plus + counter][0] != '\0')
+                {
+                    ans += grep(s[2 + plus], s[4 + plus + counter], mode);
+                    counter++;
+                }
+                if (mode == 3)
+                {
+                    printf("%d\n", ans);
+                }
+            }
+        }
+
+        else if (strcmp(s[0], "exit") != 0) // invalid input // when enter in inputed bug happens
+        {
+            printf("Invalid input!\n");
         }
     }
 }
