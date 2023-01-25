@@ -372,7 +372,7 @@ void find(char pat[], char directory[], int mode, int start, int corw)
                 }
                 pat[len - 1] = '\0';
                 pat[len - 2] = '\0';
-                wir = 1;
+                wir++;
             }
         }
 
@@ -693,6 +693,7 @@ int main()
             int start = 0;
             int mode = 0;
             int corw = 0;
+            int flag = 0;
             for (int i = 5; s[i][0] != '\0'; i++)
             {
                 if (strcmp(s[i], "-at") == 0)
@@ -702,24 +703,26 @@ int main()
                 }
                 if (strcmp(s[i], "-count") == 0)
                 {
-                    if (mode != 0 && start == 0)
+                    if (mode == 0 && start == 0)
                     {
                         mode = 1;
                     }
                     else
                     {
-                        printf("Invalid input.");
+                        printf("Invalid input.\n");
+                        flag = 1;
                     }
                 }
                 if (strcmp(s[i], "-all") == 0)
                 {
-                    if (mode != 0 && start == 0)
+                    if (mode == 0 && start == 0)
                     {
                         mode = 2;
                     }
                     else
                     {
-                        printf("Invalid input.");
+                        printf("Invalid input.\n");
+                        flag = 1;
                     }
                 }
                 if (strcmp(s[i], "-byword") == 0)
@@ -733,7 +736,7 @@ int main()
             {
                 printf("Invalid input.\n");
             }
-            else
+            else if (flag == 0)
             {
                 find(s[2], s[4], mode, start, corw);
             }
