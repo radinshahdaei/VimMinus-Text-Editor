@@ -376,10 +376,6 @@ void find(char pat[], char directory[], int mode, int start, int corw)
             }
         }
 
-        // printf("line: %s\n", line);
-        // printf("wild: %d\n", wild);
-        // printf("pat: %s\n", pat);
-
         for (int i = 0; i < 50; i++) // finding pattern
         {
             char string[100] = {};
@@ -421,8 +417,6 @@ void find(char pat[], char directory[], int mode, int start, int corw)
                     }
                 }
             }
-
-            // printf("counter: %d\n", counter);
         }
 
         for (int i = 0; found[i] != -1; i++) // creating byword array
@@ -437,27 +431,6 @@ void find(char pat[], char directory[], int mode, int start, int corw)
             }
             foundbyword[i] = max;
         }
-
-        /*printf("starting: ");
-        for (int i = 0; found[i] != -1; i++)
-        {
-
-            printf("%d ,", found[i]);
-        }
-        printf("\n");
-        printf("spaces: ");
-        for (int i = 0; space[i] != -1; i++)
-        {
-
-            printf("%d ,", space[i]);
-        }
-        printf("\n");
-        printf("byword: ");
-        for (int i = 0; foundbyword[i] != -1; i++)
-        {
-
-            printf("%d ,", foundbyword[i]);
-        }*/
 
         if (mode == 0 && corw == 0) // modes --->
         {
@@ -496,6 +469,190 @@ void find(char pat[], char directory[], int mode, int start, int corw)
     }
 }
 
+int replace(char pat[], char directory[], int start, char rep[])
+{
+    int counter = 0;
+    int counters = 0;
+    int flag = 0;
+    int wir = 0;
+
+    FILE *file;
+    char line[300] = {};
+    int found[50] = {};
+    int size[50] = {};
+    int foundbyword[50] = {};
+    int space[50] = {};
+    for (int i = 0; i < 50; i++)
+    {
+        found[i] = -1;
+        foundbyword[i] = -1;
+        space[i] = -1;
+        size[i] = -1;
+    }
+
+    if (fopen(directory + 1, "r") == 0) // check file
+    {
+        printf("File does not exist.\n");
+        return 0;
+    }
+    else
+    {
+        int wild = 0;
+        file = fopen(directory + 1, "r");
+        fgets(line, 300, file);
+
+        int len = strlen(line) - strlen(pat);
+        int length = strlen(pat);
+
+        if (pat[0] == '*')
+        {
+            wild = 1;
+        }
+
+        for (int i = 1; i < len - 1; i++) // checking for wildcard
+        {
+            if (pat[i] == '*' && pat[i - 1] != 92)
+            {
+                wild = 1;
+            }
+            if (pat[i] == '*' && pat[i - 1] == 92) // checking for \*
+            {
+                for (int j = i - 1; j < len; j++)
+                {
+                    pat[j] = pat[j + 1];
+                }
+                pat[len - 1] = '\0';
+                pat[len - 2] = '\0';
+                wir++;
+            }
+        }
+
+        for (int i = 0; i < 50; i++) // finding pattern
+        {
+            char string[100] = {};
+            strncpy(string, line + i, length - wir);
+
+            if (line[i] == 32) // spaces
+            {
+                flag = 0;
+                space[counters] = i;
+                counters++;
+            }
+
+            if (wild == 1) // wild mode
+            {
+
+                if (match(pat, string) == 1)
+                {
+                    // printf("\nWILD!\n");
+                    flag++;
+                    if (flag == 1)
+                    {
+                        if (pat[0] == '*' && line[i] == 32)
+                        {
+                            found[counter] = i + 1;
+                        }
+                        else
+                        {
+                            found[counter] = i;
+                        }
+
+                        counter++; // number of finds
+                    }
+                }
+            }
+
+            else // cattle mode
+            {
+
+                if (strcmp(pat, string) == 0)
+                {
+                    flag++;
+                    if (flag == 1)
+                    {
+                        found[counter] = i;
+                        counter++; // number of finds
+                    }
+                }
+            }
+
+            // printf("counter: %d\n", counter);
+        }
+        if (counter == 0)
+        {
+            return 0;
+        }
+
+        for (int i = 0; found[i] != -1; i++) // creating byword array
+        {
+            int max = 1;
+            for (int j = 0; space[j] != -1; j++)
+            {
+                if (space[j] < found[i])
+                {
+                    max = j + 2;
+                }
+            }
+            foundbyword[i] = max;
+        }
+
+        if (wild == 1) // creating size array
+        {
+            int max = 0;
+            if (pat[0] == '*') // wildcard with * start
+            {
+                for (int i = 0; found[i] != -1; i++)
+                {
+                    for (int j = 0; space[j] != -1; j++)
+                    {
+                        if (space[j] < found[i])
+                        {
+                            max = space[j];
+                        }
+                    }
+                    size[i] = found[i] - max + length - 1 - (line[found[i]] == pat[1]);
+                }
+            }
+
+            if (pat[length - 1] == '*') // wildcard with * end
+            {
+                int buff = 0;
+                max = space[0];
+                for (int i = 0; found[i] != -1; i++)
+                {
+                    for (int j = 0; space[j] != -1; j++)
+                    {
+                        if (space[j] < found[i])
+                        {
+                            max = space[j + 1];
+                            buff = found[i];
+                        }
+                    }
+                    if (i == counter - 1)
+                    {
+                        size[i] = strlen(line) - found[i];
+                    }
+                    else
+                    {
+                        size[i] = max - buff;
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (int i = 0; found[i] != -1; i++)
+            {
+                size[i] = length;
+            }
+        }
+
+        removestr(directory, 1, found[start], size[start], 'f');
+        insertstr(directory, rep, 1, found[start]);
+    }
+    return 1;
+}
+
 void cat(char *dir) // cat
 {
     int len = strlen(dir);
@@ -528,8 +685,6 @@ void cat(char *dir) // cat
 
 int main()
 {
-    // find("al", "/root/file2.txt", 2, 0, 1);
-
     while (strcmp(s[0], "exit") != 0)
     {
         clear();
@@ -730,7 +885,6 @@ int main()
                     corw = 1;
                 }
             }
-            // printf("mode: %d\nstart: %d\ncorw: %d\n", mode, start, corw);
 
             if (strcmp(s[1], "-str") != 0 || strcmp(s[3], "-file") != 0)
             {
@@ -738,7 +892,63 @@ int main()
             }
             else if (flag == 0)
             {
-                find(s[2], s[4], mode, start, corw);
+                find(corstr(s[2]), corstr(s[4]), mode, start, corw);
+            }
+        }
+
+        else if (strcmp(s[0], "replace") == 0) // find
+        {
+            int start = 0;
+            int mode = 0;
+            int flag = 0;
+            for (int i = 7; s[i][0] != '\0'; i++)
+            {
+                if (strcmp(s[i], "-at") == 0)
+                {
+                    if (mode == 1)
+                    {
+                        printf("Invalid input.\n");
+                        flag = 1;
+                    }
+                    else
+                    {
+                        i++;
+                        start = change(s[i]);
+                    }
+                }
+
+                if (strcmp(s[i], "-all") == 0)
+                {
+                    if (mode == 0 && start == 0)
+                    {
+                        mode = 1;
+                    }
+                    else
+                    {
+                        printf("Invalid input.\n");
+                        flag = 1;
+                    }
+                }
+            }
+
+            if (strcmp(s[1], "-str1") != 0 || strcmp(s[3], "-str2") != 0 || strcmp(s[5], "-file") != 0)
+            {
+                printf("Invalid input.\n");
+            }
+            else if (flag == 0)
+            {
+                int ans = 1;
+                if (mode == 0) // mode 0
+                {
+                    ans = replace(corstr(s[2]), corstr(s[6]), start, corstr(s[4]));
+                }
+                else // mode all
+                {
+                    while (ans == 1)
+                    {
+                        ans = replace(corstr(s[2]), corstr(s[6]), 0, corstr(s[4]));
+                    }
+                }
             }
         }
 
