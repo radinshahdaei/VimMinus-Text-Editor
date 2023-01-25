@@ -21,6 +21,15 @@ int snn(char *s)
     return 0;
 }
 
+int ss(char *s)
+{
+    if (s[0] == 92 && s[1] == '*')
+    {
+        return 1;
+    }
+    return 0;
+}
+
 int sq(char *s)
 {
     if (s[0] == 92 && s[1] == '"')
@@ -142,13 +151,72 @@ int findinline(char *s, char *pat)
     while (s[counter] != '\0')
     {
         strncpy(st, &s[counter], len);
-        // printf("%s\n", st);
         if (strcmp(pat, st) == 0)
         {
-            // printf("%s\n", s);
             pcounter++;
         }
         counter++;
     }
     return pcounter;
+}
+
+int match(char *first, char *second)
+{
+
+    if (*first == '\0' && *second == '\0')
+        return 1;
+
+    if (*first == '*')
+    {
+        while (*(first + 1) == '*')
+            first++;
+    }
+
+    if (*first == '*' && *(first + 1) != '\0' && *second == '\0')
+        return 0;
+
+    if (*first == '?' || *first == *second)
+        return match(first + 1, second + 1);
+
+    if (*first == '*')
+        return match(first + 1, second) || match(first, second + 1);
+    return 0;
+}
+
+int findin(char array[], char pat[])
+{
+
+    int flag = 0;
+
+    int len = strlen(pat);
+    int arrlen = strlen(array) - len;
+
+    for (int i = 0; i < arrlen; i++)
+    {
+
+        char string[50] = {};
+        strncpy(string, array + i, len);
+
+        if (match(pat, string) == 1)
+        {
+            flag = 1;
+        }
+    }
+    return flag;
+}
+
+char *makestr(char *s)
+{
+    int len = strlen(s);
+    for (int i = 0; i < len; i++)
+    {
+        if (ss(&s[i])) // for \*
+        {
+            for (int j = i; j < len; j++)
+            {
+                s[j] = s[j + 1];
+            }
+        }
+    }
+    return s;
 }
