@@ -108,9 +108,20 @@ int change(char *string)
 {
     int len = strlen(string);
     int ans = 0;
-    for (int i = 0; i < len; i++)
+    if (string[0] == '-')
     {
-        ans = ans * 10 + (string[i] - 48);
+        for (int i = 1; i < len; i++)
+        {
+            ans = ans * 10 - (string[i] - 48);
+        }
+    }
+    else
+    {
+
+        for (int i = 0; i < len; i++)
+        {
+            ans = ans * 10 + (string[i] - 48);
+        }
     }
     return ans;
 }
@@ -175,6 +186,10 @@ int match(char *first, char *second)
     if (*first == '*' && *(first + 1) != '\0' && *second == '\0')
         return 0;
 
+    if (*first == 92 && *(first + 1) == '*' && *second == '*') // lets test
+    {
+        return match(first + 2, second + 1);
+    }
     if (*first == '?' || *first == *second)
         return match(first + 1, second + 1);
 

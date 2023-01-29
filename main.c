@@ -4,6 +4,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include "correction.h"
+#include <sys/types.h>
+#include <dirent.h>
 
 char string[100] = {};
 char s[15][50] = {};
@@ -410,11 +412,8 @@ void find(char pat[], char directory[], int mode, int start, int corw)
                 {
                     // printf("\nNOT WILD!\n");
                     flag++;
-                    if (flag == 1)
-                    {
-                        found[counter] = i;
-                        counter++; // number of finds
-                    }
+                    found[counter] = i;
+                    counter++; // number of finds
                 }
             }
         }
@@ -567,12 +566,10 @@ int replace(char pat[], char directory[], int start, char rep[])
 
                 if (strcmp(pat, string) == 0)
                 {
+                    // printf("\nNOT WILD!\n");
                     flag++;
-                    if (flag == 1)
-                    {
-                        found[counter] = i;
-                        counter++; // number of finds
-                    }
+                    found[counter] = i;
+                    counter++; // number of finds
                 }
             }
 
@@ -681,6 +678,49 @@ void cat(char *dir) // cat
         fclose(file);
     }
     printf("\n");
+}
+
+int dcounter = 0;
+int depth;
+
+void tree(char *basePath, const int root)
+{
+    int i;
+    char path[1000];
+    struct dirent *dp;
+    DIR *dir = opendir(basePath);
+
+    if (!dir)
+        return;
+
+    while ((dp = readdir(dir)) != NULL)
+    {
+        if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0 && dp->d_name[0] != '.')
+        {
+            for (i = 0; i < root; i++)
+            {
+                if (i % 2 == 0 || i == 0)
+                    printf("│");
+                else
+                    printf(" ");
+            }
+
+            printf("├─%s\n", dp->d_name);
+
+            strcpy(path, basePath);
+            strcat(path, "/");
+            strcat(path, dp->d_name);
+            if (dcounter < depth)
+
+            {
+                dcounter++;
+
+                tree(path, root + 2);
+            }
+        }
+    }
+
+    closedir(dir);
 }
 
 int main()
@@ -952,6 +992,24 @@ int main()
             }
         }
 
+        else if (strcmp(s[0], "tree") == 0) // tree
+        {
+            dcounter = 0;
+            depth = change(s[1]);
+            if (depth == -1)
+            {
+                depth = 20;
+                tree("root", 0);
+            }
+            else if (depth < -1)
+            {
+                printf("Invalid input.\n");
+            }
+            else
+            {
+                tree("root", 0);
+            }
+        }
         else if (strcmp(s[0], "exit") != 0) // invalid input // when enter in inputed bug happens
         {
             printf("Invalid input!\n");
