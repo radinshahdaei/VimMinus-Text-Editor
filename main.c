@@ -842,8 +842,109 @@ void autoindent(char *dir)
     }
 }
 
+void compare(char *dir1, char *dir2)
+{
+    int counter1 = 0, counter2 = 0;
+    int flag = 1;
+    FILE *file1;
+    FILE *file2;
+    char line1[300] = {};
+    char line2[300] = {};
+    char ans[500] = {};
+    if (fopen(dir1 + 1, "r") == 0 || fopen(dir2 + 1, "r") == 0) // check file
+    {
+        printf("File does not exist.\n");
+    }
+    else
+    {
+
+        file1 = fopen(dir1 + 1, "r");
+        file2 = fopen(dir2 + 1, "r");
+        fgets(line1, 300, file1);
+        fgets(line2, 300, file2);
+        if (line1[0] != '\0')
+        {
+            counter1++;
+        }
+        if (line2[0] != '\0')
+        {
+            counter2++;
+        }
+        while (line1[0] != '\0' && line2[0] != '\0' && flag == 1)
+        {
+
+            if (counter1 != counter2)
+            {
+                flag = 0;
+            }
+            else if (strcmp(line1, line2) != 0)
+            {
+                printf("============ %d ============\n", counter1);
+
+                printf("%s%s", line1, line2);
+            }
+            for (int i = 0; i < 300; i++)
+            {
+                line1[i] = '\0';
+                line2[i] = '\0';
+            }
+            fgets(line1, 300, file1);
+            fgets(line2, 300, file2);
+            if (line1[0] != '\0')
+            {
+                counter1++;
+            }
+            if (line2[0] != '\0')
+            {
+                counter2++;
+            }
+        }
+
+        if (counter1 > counter2)
+        {
+            int buff = counter1;
+            counter1--;
+            strcat(ans, line1);
+            while (line1[0] != '\0')
+            {
+                counter1++;
+                for (int i = 0; i < 300; i++)
+                {
+                    line1[i] = '\0';
+                }
+                fgets(line1, 300, file1);
+                strcat(ans, line1);
+            }
+            printf("\n<<<<<<<<<<<< %d - %d <<<<<<<<<<<<\n%s", buff, counter1, ans);
+        }
+
+        if (counter2 > counter1)
+        {
+            int buff = counter2;
+            counter2--;
+            strcat(ans, line2);
+            while (line2[0] != '\0')
+            {
+                counter2++;
+                for (int i = 0; i < 300; i++)
+                {
+                    line2[i] = '\0';
+                }
+                fgets(line2, 300, file2);
+                strcat(ans, line2);
+            }
+            printf("\n>>>>>>>>>>>> %d - %d >>>>>>>>>>>>\n%s", buff, counter2, ans);
+        }
+
+        printf("\n");
+        fclose(file1);
+        fclose(file2);
+    }
+}
 int main()
 {
+    
+
     while (strcmp(s[0], "exit") != 0)
     {
         clear();
@@ -1133,6 +1234,11 @@ int main()
         else if (strcmp(s[0], "auto-indent") == 0) // closing pairs
         {
             autoindent(s[1]);
+        }
+
+        else if (strcmp(s[0], "compare") == 0)
+        {
+            compare(s[1], s[2]);
         }
 
         else if (strcmp(s[0], "exit") != 0) // invalid input // when enter in inputed bug happens
