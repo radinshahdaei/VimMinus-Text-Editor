@@ -870,9 +870,17 @@ void compare(char *dir1, char *dir2)
         {
             counter2++;
         }
+
+        if (line1[strlen(line1) - 1] != '\n')
+        {
+            strcat(line1, "\n");
+        }
+        if (line2[strlen(line2) - 1] != '\n')
+        {
+            strcat(line2, "\n");
+        }
         while (line1[0] != '\0' && line2[0] != '\0' && flag == 1)
         {
-
             if (counter1 != counter2)
             {
                 flag = 0;
@@ -880,7 +888,6 @@ void compare(char *dir1, char *dir2)
             else if (strcmp(line1, line2) != 0)
             {
                 printf("============ %d ============\n", counter1);
-
                 printf("%s%s", line1, line2);
             }
             for (int i = 0; i < 300; i++)
@@ -897,6 +904,14 @@ void compare(char *dir1, char *dir2)
             if (line2[0] != '\0')
             {
                 counter2++;
+            }
+            if (line1[strlen(line1) - 1] != '\n')
+            {
+                strcat(line1, "\n");
+            }
+            if (line2[strlen(line2) - 1] != '\n')
+            {
+                strcat(line2, "\n");
             }
         }
 
@@ -915,7 +930,7 @@ void compare(char *dir1, char *dir2)
                 fgets(line1, 300, file1);
                 strcat(ans, line1);
             }
-            printf("\n<<<<<<<<<<<< %d - %d <<<<<<<<<<<<\n%s", buff, counter1, ans);
+            printf("<<<<<<<<<<<< %d - %d <<<<<<<<<<<<\n%s", buff, counter1, ans);
         }
 
         if (counter2 > counter1)
@@ -933,7 +948,7 @@ void compare(char *dir1, char *dir2)
                 fgets(line2, 300, file2);
                 strcat(ans, line2);
             }
-            printf("\n>>>>>>>>>>>> %d - %d >>>>>>>>>>>>\n%s", buff, counter2, ans);
+            printf(">>>>>>>>>>>> %d - %d >>>>>>>>>>>>\n%s", buff, counter2, ans);
         }
 
         printf("\n");
@@ -941,10 +956,9 @@ void compare(char *dir1, char *dir2)
         fclose(file2);
     }
 }
+
 int main()
 {
-    
-
     while (strcmp(s[0], "exit") != 0)
     {
         clear();
