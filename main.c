@@ -321,6 +321,7 @@ int grep(char pat[], char directory[], int mode)
             printf("%s\n", directory + 1);
         }
     }
+    fclose(file);
     return counter;
 }
 
@@ -723,6 +724,124 @@ void tree(char *basePath, const int root)
     closedir(dir);
 }
 
+void autoindent(char *dir)
+{
+    if (fopen(dir + 1, "r") == 0) // check file
+    {
+        printf("File does not exist.\n");
+    }
+
+    else
+    {
+        FILE *file;
+        file = fopen(dir + 1, "r");
+        char line[300] = {};
+        fgets(line, 300, file);
+        char l[50][50] = {};
+        int len = strlen(line);
+        int counter1 = 0;
+        int counter2 = 0;
+        int open = 0;
+        int close = 0;
+
+        l[0][0] = line[0];
+        if (line[0] == '{' || line[0] == '}')
+        {
+            counter1++;
+        }
+        else
+        {
+            counter2++;
+        }
+        for (int i = 1; i < len; i++) // creating 2d array
+        {
+            if (line[i] == '{')
+            {
+                open++;
+                counter1++;
+                l[counter1][0] = '{';
+                counter1++;
+                counter2 = 0;
+            }
+            else if (line[i] == '}')
+            {
+                close++;
+                counter1++;
+                l[counter1][0] = '}';
+                counter1++;
+                counter2 = 0;
+            }
+            else
+            {
+                l[counter1][counter2] = line[i];
+                counter2++;
+            }
+        }
+        int ocounter = 0;
+        int ccounter = close - 1;
+
+        for (int i = 0; i < 50; i++) // removing white space
+        {
+            if (l[i][0] != '{' && l[i][0] != '}')
+            {
+                int len = strlen(l[i]);
+                int counter1 = 0;
+                while (l[i][counter1] == 32)
+                {
+                    counter1++;
+                }
+                int counter2 = 0;
+                while (l[i][len - counter2 - 1] == 32)
+                {
+                    counter2++;
+                }
+                for (int j = 0; j < len - counter1 - counter2; j++)
+                {
+                    l[i][j] = l[i][counter1 + j];
+                }
+
+                l[i][len - counter1 - counter2] = '\0';
+            }
+        }
+
+        fclose(file);
+        file = fopen(dir + 1, "w");
+
+        for (int i = 0; i < 50; i++) // printing all
+        {
+            if (l[i][0] != '\0')
+            {
+                fprintf(file, "%s", l[i]);
+                if (l[i][0] == '{' || l[i][0] == '}' || l[i + 1][0] == '}')
+                {
+                    fprintf(file, "\n");
+                    if (ocounter < open)
+                    {
+                        for (int j = 0; j <= ocounter; j++)
+                        {
+                            fprintf(file, "    ");
+                        }
+                        ocounter++;
+                    }
+                    else if (ccounter > 0)
+                    {
+                        for (int j = 0; j < ccounter; j++)
+                        {
+                            fprintf(file, "    ");
+                        }
+                        ccounter--;
+                    }
+                }
+                else if (l[i + 1][0] == '{')
+                {
+                    fprintf(file, " ");
+                }
+            }
+        }
+        fclose(file);
+    }
+}
+
 int main()
 {
     while (strcmp(s[0], "exit") != 0)
@@ -1010,6 +1129,12 @@ int main()
                 tree("root", 0);
             }
         }
+
+        else if (strcmp(s[0], "auto-indent") == 0) // closing pairs
+        {
+            autoindent(s[1]);
+        }
+
         else if (strcmp(s[0], "exit") != 0) // invalid input // when enter in inputed bug happens
         {
             printf("Invalid input!\n");
