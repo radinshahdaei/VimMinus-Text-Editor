@@ -10,6 +10,8 @@
 char string[100] = {};
 char s[15][50] = {};
 
+int f = 0;
+
 void clear() // clear strings
 {
     for (int i = 0; i < 100; i++)
@@ -56,6 +58,29 @@ void input() // input function
     }
 }
 
+char last[50] = {};
+void createcopy(char *dir)
+{
+    for (int i = 0; i < 50; i++)
+    {
+        last[i] = '\0';
+    }
+    strcpy(last, dir);
+    FILE *file;
+    FILE *copy;
+    file = fopen(dir + 1, "r");
+    copy = fopen(".undo.txt", "w");
+    char c;
+    c = fgetc(file);
+    while (c != EOF)
+    {
+        fprintf(copy, "%c", c);
+        c = fgetc(file);
+    }
+    fclose(file);
+    fclose(copy);
+}
+
 void createfile(char *string) // createfile
 {
     char buff[100] = {};
@@ -100,6 +125,8 @@ void insertstr(char dir[], char string[], int line, int start) // insertstr
 
     else
     {
+        if (f == 0)
+            createcopy(dir);
         FILE *file;
         file = fopen(buff, "r");
         char str1[1000] = {'\0'};
@@ -154,6 +181,8 @@ void removestr(char dir[], int line, int start, int size, char mode)
     }
     else
     {
+        if (f == 0)
+            createcopy(dir);
         FILE *file;
         file = fopen(buff, "r");
         char str1[1000] = {'\0'};
@@ -497,6 +526,7 @@ int replace(char pat[], char directory[], int start, char rep[])
     }
     else
     {
+
         int wild = 0;
         file = fopen(directory + 1, "r");
         fgets(line, 300, file);
@@ -677,8 +707,8 @@ void cat(char *dir) // cat
             c = fgetc(file);
         }
         fclose(file);
+        printf("\n");
     }
-    printf("\n");
 }
 
 int dcounter = 0;
@@ -733,6 +763,7 @@ void autoindent(char *dir)
 
     else
     {
+        createcopy(dir);
         FILE *file;
         file = fopen(dir + 1, "r");
         char line[300] = {};
@@ -960,12 +991,28 @@ void compare(char *dir1, char *dir2)
     }
 }
 
+void undo()
+{
+    FILE *file = fopen(last + 1, "w");
+    FILE *copy = fopen(".undo.txt", "r");
+    char c;
+    c = fgetc(copy);
+    while (c != EOF)
+    {
+        fprintf(file, "%c", c);
+        c = fgetc(copy);
+    }
+    fclose(file);
+    fclose(copy);
+}
+
 int main()
 {
     while (strcmp(s[0], "exit") != 0)
     {
         clear();
         input();
+        f = 0;
 
         if (strcmp(s[0], "createfile") == 0) // createfile
         {
@@ -1208,6 +1255,12 @@ int main()
                 }
             }
 
+            if (fopen(s[6] + 1, "r") != 0) // check file
+            {
+                createcopy(s[6]);
+                f = 1;
+            }
+
             if (strcmp(s[1], "-str1") != 0 || strcmp(s[3], "-str2") != 0 || strcmp(s[5], "-file") != 0)
             {
                 printf("Invalid input.\n");
@@ -1256,6 +1309,11 @@ int main()
         else if (strcmp(s[0], "compare") == 0)
         {
             compare(s[1], s[2]);
+        }
+
+        else if (strcmp(s[0], "undo") == 0)
+        {
+            undo();
         }
 
         else if (strcmp(s[0], "exit") != 0) // invalid input // when enter in inputed bug happens
