@@ -809,12 +809,15 @@ void autoindent(char *dir)
 
         for (int i = 0; i < 50; i++) // printing all
         {
-            if (l[i][0] != '\0')
+            if (l[i][0] != '\0' && l[i][0] != 32)
             {
+
                 fprintf(file, "%s", l[i]);
                 if (l[i][0] == '{' || l[i][0] == '}' || l[i + 1][0] == '}')
                 {
+
                     fprintf(file, "\n");
+
                     if (ocounter < open)
                     {
                         for (int j = 0; j <= ocounter; j++)
