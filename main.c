@@ -7,23 +7,33 @@
 #include <sys/types.h>
 #include <dirent.h>
 
-char string[100] = {};
-char s[15][50] = {};
+char string[200] = {};
+char s[20][50] = {};
+char ans[200] = {}; // double check for funtionality
 
 int f = 0;
+int arman = 0;
 
 void clear() // clear strings
 {
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < 200; i++)
     {
         string[i] = '\0';
     }
-    for (int i = 0; i < 15; i++)
+    for (int i = 0; i < 20; i++)
     {
         for (int j = 0; j < 50; j++)
         {
             s[i][j] = '\0';
         }
+    }
+}
+
+void clearans()
+{
+    for (int i = 0; i < 200; i++)
+    {
+        ans[i] = '\0';
     }
 }
 
@@ -58,18 +68,24 @@ void input() // input function
     }
 }
 
-char last[50] = {};
 void createcopy(char *dir)
 {
-    for (int i = 0; i < 50; i++)
-    {
-        last[i] = '\0';
-    }
-    strcpy(last, dir);
     FILE *file;
     FILE *copy;
     file = fopen(dir + 1, "r");
-    copy = fopen(".undo.txt", "w");
+
+    int counter = 0;
+    int len = strlen(dir);
+    while (dir[len - 1 - counter] != '/')
+    {
+        counter++;
+    }
+    char buff[50] = {};
+    strncat(buff, dir, len - counter);
+    strcat(buff, ".");
+    strcat(buff, dir + len - counter);
+
+    copy = fopen(buff + 1, "w");
     char c;
     c = fgetc(file);
     while (c != EOF)
@@ -102,7 +118,9 @@ void createfile(char *string) // createfile
     }
     else
     {
-        printf("File already exists.\n");
+        clearans();
+        strcat(ans, "File already exists.\n");
+        // printf("File already exists.\n");
         return;
     }
     fclose(file);
@@ -120,7 +138,9 @@ void insertstr(char dir[], char string[], int line, int start) // insertstr
 
     if (fopen(buff, "r") == 0) // check file
     {
-        printf("File does not exist.\n");
+        clearans();
+        strcat(ans, "File does not exist.\n");
+        // printf("File does not exist.\n");
     }
 
     else
@@ -177,7 +197,9 @@ void removestr(char dir[], int line, int start, int size, char mode)
 
     if (fopen(buff, "r") == 0) // check file
     {
-        printf("File does not exist.\n");
+        clearans();
+        strcat(ans, "File does not exist.\n");
+        // printf("File does not exist.\n");
     }
     else
     {
@@ -251,7 +273,9 @@ void copystr(char dir[], int line, int start, int size, char mode)
 
     if (fopen(buff, "r") == 0) // check file
     {
-        printf("File does not exist.\n");
+        clearans();
+        strcat(ans, "File does not exist.\n");
+        // printf("File does not exist.\n");
     }
 
     else
@@ -315,12 +339,14 @@ void copystr(char dir[], int line, int start, int size, char mode)
 int grep(char pat[], char directory[], int mode)
 {
     int counter = 0;
-    int ans = 0;
+    int answer = 0;
     FILE *file;
     char line[300] = {};
     if (fopen(directory + 1, "r") == 0) // check file
     {
-        printf("File does not exist.\n");
+        clearans();
+        strcat(ans, "File does not exist.\n");
+        // printf("File does not exist.\n");
     }
     else
     {
@@ -328,16 +354,24 @@ int grep(char pat[], char directory[], int mode)
         fgets(line, 300, file);
         while (line[0] != '\0') // line
         {
-            ans = findinline(line, pat);
-            if (ans != 0)
+            answer = findinline(line, pat);
+            if (answer != 0)
             {
                 if (mode == 1)
                 {
-                    printf("%s: %s", directory + 1, line);
+                    clearans();
+                    strcat(ans, directory + 1);
+                    strcat(ans, ": ");
+                    strcat(ans, line);
+                    if (line[strlen(line) - 1] != '\n')
+                    {
+                        strcat(ans, "\n");
+                    }
+                    // printf("%s: %s", directory + 1, line);
                 }
                 counter++;
             }
-            ans = 0;
+            answer = 0;
             for (int i = 0; i < 100; i++)
             {
                 line[i] = '\0';
@@ -347,7 +381,10 @@ int grep(char pat[], char directory[], int mode)
 
         if (counter != 0 && mode == 2)
         {
-            printf("%s\n", directory + 1);
+            clearans();
+            strcat(ans, directory + 1);
+            strcat(ans, "\n");
+            // printf("%s\n", directory + 1);
         }
     }
     fclose(file);
@@ -375,7 +412,9 @@ void find(char pat[], char directory[], int mode, int start, int corw)
 
     if (fopen(directory + 1, "r") == 0) // check file
     {
-        printf("File does not exist.\n");
+        clearans();
+        strcat(ans, "File does not exist.\n");
+        // printf("File does not exist.\n");
     }
     else
     {
@@ -460,40 +499,63 @@ void find(char pat[], char directory[], int mode, int start, int corw)
             }
             foundbyword[i] = max;
         }
-
+        clearans();
         if (mode == 0 && corw == 0) // modes --->
         {
-            printf("%d\n", found[start]);
+            char buff[10] = {};
+            sprintf(buff, "%d\n", found[start]);
+            strcat(ans, buff);
+            // printf("%d\n", found[start]);
         }
 
         else if (mode == 0 && corw == 1)
         {
-            printf("%d\n", foundbyword[start]);
+            char buff[10] = {};
+            sprintf(buff, "%d\n", foundbyword[start]);
+            strcat(ans, buff);
+            // printf("%d\n", foundbyword[start]);
         }
 
         else if (mode == 1)
         {
-            printf("%d\n", counter);
+            char buff[10] = {};
+            sprintf(buff, "%d\n", counter);
+            strcat(ans, buff);
+            // printf("%d\n", counter);
         }
 
         else if (mode == 2 && corw == 0)
         {
-            printf("%d", found[0]);
+            char buff[10] = {};
+            sprintf(buff, "%d", found[0]);
+            strcat(ans, buff);
+            // printf("%d", found[0]);
             for (int i = 1; found[i] != -1; i++)
             {
-                printf(", %d", found[i]);
+                char buff[10] = {};
+                sprintf(buff, ", %d", found[i]);
+                strcat(ans, buff);
+                // printf(", %d", found[i]);
             }
-            printf("\n");
+            strcat(ans, "\n");
+            // printf("\n");
         }
 
         else if (mode == 2 && corw == 1)
         {
-            printf("%d", foundbyword[0]);
+            char buff[10] = {};
+            sprintf(buff, "%d", foundbyword[0]);
+            strcat(ans, buff);
+            // printf("%d", foundbyword[0]);
             for (int i = 1; foundbyword[i] != -1; i++)
             {
-                printf(", %d", foundbyword[i]);
+                char buff[10] = {};
+                sprintf(buff, "%d", foundbyword[i]);
+                strcat(ans, buff);
+                // printf(", %d", foundbyword[i]);
             }
-            printf("\n");
+            strcat(ans, "\n");
+            // printf("\n");
         }
     }
 }
@@ -521,7 +583,9 @@ int replace(char pat[], char directory[], int start, char rep[])
 
     if (fopen(directory + 1, "r") == 0) // check file
     {
-        printf("File does not exist.\n");
+        clearans();
+        strcat(ans, "File does not exist.\n");
+        // printf("File does not exist.\n");
         return 0;
     }
     else
@@ -574,7 +638,6 @@ int replace(char pat[], char directory[], int start, char rep[])
 
                 if (match(pat, string) == 1)
                 {
-                    // printf("\nWILD!\n");
                     flag++;
                     if (flag == 1)
                     {
@@ -597,14 +660,11 @@ int replace(char pat[], char directory[], int start, char rep[])
 
                 if (strcmp(pat, string) == 0)
                 {
-                    // printf("\nNOT WILD!\n");
                     flag++;
                     found[counter] = i;
                     counter++; // number of finds
                 }
             }
-
-            // printf("counter: %d\n", counter);
         }
         if (counter == 0)
         {
@@ -692,7 +752,9 @@ void cat(char *dir) // cat
     }
     if (fopen(buff, "r") == 0) // check file
     {
-        printf("File does not exist.\n");
+        clearans();
+        strcat(ans, "File does not exist.\n");
+        // printf("File does not exist.\n");
     }
 
     else
@@ -701,13 +763,18 @@ void cat(char *dir) // cat
         FILE *file;
         file = fopen(buff, "r");
         c = fgetc(file);
+        clearans();
+        int counter = 0;
         while (c != EOF)
         {
-            printf("%c", c);
+            ans[counter] = c;
+            counter++;
+            // printf("%c", c);
             c = fgetc(file);
         }
         fclose(file);
-        printf("\n");
+        strcat(ans, "\n");
+        // printf("\n");
     }
 }
 
@@ -731,12 +798,15 @@ void tree(char *basePath, const int root)
             for (i = 0; i < root; i++)
             {
                 if (i % 2 == 0 || i == 0)
-                    printf("│");
+                    strcat(ans, "│");
                 else
-                    printf(" ");
+                    strcat(ans, " ");
             }
 
-            printf("├─%s\n", dp->d_name);
+            strcat(ans, "├─");
+            strcat(ans, dp->d_name);
+            strcat(ans, "\n");
+            // printf("├─%s\n", dp->d_name);
 
             strcpy(path, basePath);
             strcat(path, "/");
@@ -758,7 +828,9 @@ void autoindent(char *dir)
 {
     if (fopen(dir + 1, "r") == 0) // check file
     {
-        printf("File does not exist.\n");
+        clearans();
+        strcat(ans, "File does not exist.\n");
+        // printf("File does not exist.\n");
     }
 
     else
@@ -884,10 +956,12 @@ void compare(char *dir1, char *dir2)
     FILE *file2;
     char line1[300] = {};
     char line2[300] = {};
-    char ans[500] = {};
+    char answer[500] = {};
     if (fopen(dir1 + 1, "r") == 0 || fopen(dir2 + 1, "r") == 0) // check file
     {
-        printf("File does not exist.\n");
+        clearans();
+        strcat(ans, "File does not exist.\n");
+        // printf("File does not exist.\n");
     }
     else
     {
@@ -913,16 +987,26 @@ void compare(char *dir1, char *dir2)
         {
             strcat(line2, "\n");
         }
+
         while (line1[0] != '\0' && line2[0] != '\0' && flag == 1)
         {
-            if (counter1 != counter2)
+            if (counter1 > counter2)
             {
                 flag = 0;
             }
+
+            if (counter1 < counter2)
+            {
+                flag = 0;
+            }
+
             else if (strcmp(line1, line2) != 0)
             {
-                printf("============ %d ============\n", counter1);
-                printf("%s%s", line1, line2);
+                char buffer[200] = {};
+                sprintf(buffer, "============ %d ============\n%s%s", counter1, line1, line2);
+                strcat(ans, buffer);
+                // printf("============ %d ============\n", counter1);
+                // printf("%s%s", line1, line2);
             }
             for (int i = 0; i < 300; i++)
             {
@@ -939,6 +1023,7 @@ void compare(char *dir1, char *dir2)
             {
                 counter2++;
             }
+
             if (line1[strlen(line1) - 1] != '\n')
             {
                 strcat(line1, "\n");
@@ -953,7 +1038,7 @@ void compare(char *dir1, char *dir2)
         {
             int buff = counter1;
             counter1--;
-            strcat(ans, line1);
+            strcat(answer, line1);
             while (line1[0] != '\0')
             {
                 counter1++;
@@ -962,16 +1047,19 @@ void compare(char *dir1, char *dir2)
                     line1[i] = '\0';
                 }
                 fgets(line1, 300, file1);
-                strcat(ans, line1);
+                strcat(answer, line1);
             }
-            printf("<<<<<<<<<<<< %d - %d <<<<<<<<<<<<\n%s", buff, counter1, ans);
+            char buffer[200] = {};
+            sprintf(buffer, "<<<<<<<<<<<< %d - %d <<<<<<<<<<<<\n%s", buff, counter1, answer);
+            strcat(ans, buffer);
+            // printf("<<<<<<<<<<<< %d - %d <<<<<<<<<<<<\n%s", buff, counter1, ans);
         }
 
         if (counter2 > counter1)
         {
             int buff = counter2;
             counter2--;
-            strcat(ans, line2);
+            strcat(answer, line2);
             while (line2[0] != '\0')
             {
                 counter2++;
@@ -980,21 +1068,37 @@ void compare(char *dir1, char *dir2)
                     line2[i] = '\0';
                 }
                 fgets(line2, 300, file2);
-                strcat(ans, line2);
+                strcat(answer, line2);
             }
-            printf(">>>>>>>>>>>> %d - %d >>>>>>>>>>>>\n%s", buff, counter2, ans);
+            char buffer[200] = {};
+            sprintf(buffer, ">>>>>>>>>>>> %d - %d >>>>>>>>>>>>\n%s", buff, counter2, answer);
+            strcat(ans, buffer);
+            // printf(">>>>>>>>>>>> %d - %d >>>>>>>>>>>>\n%s", buff, counter2, ans);
         }
 
-        printf("\n");
+        strcat(ans, "\n");
+        // printf("\n");
         fclose(file1);
         fclose(file2);
     }
 }
 
-void undo()
+void undo(char *dir)
 {
-    FILE *file = fopen(last + 1, "w");
-    FILE *copy = fopen(".undo.txt", "r");
+    FILE *file = fopen(dir + 1, "w");
+
+    int counter = 0;
+    int len = strlen(dir);
+    while (dir[len - 1 - counter] != '/')
+    {
+        counter++;
+    }
+    char buff[50] = {};
+    strncat(buff, dir, len - counter);
+    strcat(buff, ".");
+    strcat(buff, dir + len - counter);
+    FILE *copy = fopen(buff + 1, "r");
+
     char c;
     c = fgetc(copy);
     while (c != EOF)
@@ -1008,11 +1112,23 @@ void undo()
 
 int main()
 {
+    clear();
+    input();
     while (strcmp(s[0], "exit") != 0)
     {
-        clear();
-        input();
+        clearans();
         f = 0;
+
+        arman = 0;
+        int COUNTER = 0;
+        while (s[COUNTER][0] != '\0')
+        {
+            if (strcmp(s[COUNTER], "=D") == 0)
+            {
+                arman = COUNTER;
+            }
+            COUNTER++;
+        }
 
         if (strcmp(s[0], "createfile") == 0) // createfile
         {
@@ -1131,7 +1247,7 @@ int main()
         {
 
             int mode;
-            int ans;
+            int answer;
             int plus;
             int counter = 0;
             if (strcmp(s[1], "-l") == 0) // mode 2
@@ -1157,12 +1273,16 @@ int main()
             {
                 while (s[4 + plus + counter][0] != '\0')
                 {
-                    ans += grep(s[2 + plus], s[4 + plus + counter], mode);
+                    answer += grep(s[2 + plus], s[4 + plus + counter], mode);
                     counter++;
                 }
                 if (mode == 3)
                 {
-                    printf("%d\n", ans);
+                    clearans();
+                    char buff[50] = {};
+                    sprintf(buff, "%d\n", answer);
+                    strcat(ans, buff);
+                    // printf("%d\n", answer);
                 }
             }
         }
@@ -1284,6 +1404,7 @@ int main()
 
         else if (strcmp(s[0], "tree") == 0) // tree
         {
+            clearans();
             dcounter = 0;
             depth = change(s[1]);
             if (depth == -1)
@@ -1313,12 +1434,144 @@ int main()
 
         else if (strcmp(s[0], "undo") == 0)
         {
-            undo();
+            if (strcmp(s[1], "-file") != 0)
+            {
+                printf("Invalid input.\n");
+            }
+            else
+            {
+                undo(corstr(s[2]));
+            }
         }
 
         else if (strcmp(s[0], "exit") != 0) // invalid input // when enter in inputed bug happens
         {
             printf("Invalid input!\n");
+        }
+
+        if (arman == 0)
+        {
+            printf("%s", ans);
+            clear();
+            input();
+        }
+        else
+        {
+            arman++;
+            if (strcmp(s[0 + arman], "insertstr") == 0) // insertstr
+            {
+
+                if (strcmp(s[1 + arman], "-file") != 0 || strcmp(s[3 + arman], "-pos") != 0)
+                {
+                    printf("Invalid input.\n");
+                }
+                else
+                {
+                    insertstr(corstr(s[2 + arman]), ans, pos(s[4 + arman], 1), pos(s[4 + arman], 2)); // need to make pos function
+                }
+            }
+
+            else if (strcmp(s[0 + arman], "find") == 0) // find
+            {
+                int start = 0;
+                int mode = 0;
+                int corw = 0;
+                int flag = 0;
+                for (int i = 3 + arman; s[i][0] != '\0'; i++)
+                {
+                    if (strcmp(s[i], "-at") == 0)
+                    {
+                        i++;
+                        start = change(s[i]);
+                    }
+                    if (strcmp(s[i], "-count") == 0)
+                    {
+                        if (mode == 0 && start == 0)
+                        {
+                            mode = 1;
+                        }
+                        else
+                        {
+                            printf("Invalid input.\n");
+                            flag = 1;
+                        }
+                    }
+                    if (strcmp(s[i], "-all") == 0)
+                    {
+                        if (mode == 0 && start == 0)
+                        {
+                            mode = 2;
+                        }
+                        else
+                        {
+                            printf("Invalid input.\n");
+                            flag = 1;
+                        }
+                    }
+                    if (strcmp(s[i], "-byword") == 0)
+                    {
+                        corw = 1;
+                    }
+                }
+
+                if (strcmp(s[1 + arman], "-file") != 0)
+                {
+                    printf("Invalid input.\n");
+                }
+                else if (flag == 0)
+                {
+                    find(ans, corstr(s[2 + arman]), mode, start, corw);
+                }
+            }
+
+            else if (strcmp(s[0 + arman], "grep") == 0) // grep
+            {
+
+                int mode;
+                int answer;
+                int plus;
+                int counter = 0;
+                if (strcmp(s[1 + arman], "-l") == 0) // mode 2
+                {
+                    mode = 2;
+                    plus = 1;
+                }
+                else if (strcmp(s[1 + arman], "-c") == 0) // mode 3
+                {
+                    mode = 3;
+                    plus = 1;
+                }
+                else // mode 1
+                {
+                    mode = 1;
+                    plus = 0;
+                }
+                if (strcmp(s[1 + plus + arman], "-files") != 0)
+                {
+                    printf("Invalid input.\n");
+                }
+                else
+                {
+                    while (s[2 + plus + counter + arman][0] != '\0')
+                    {
+                        answer += grep(ans, s[2 + plus + counter + arman], mode);
+                        counter++;
+                    }
+                    if (mode == 3)
+                    {
+                        clearans();
+                        char buff[50] = {};
+                        sprintf(buff, "%d\n", answer);
+                        strcat(ans, buff);
+                        // printf("%d\n", ans);
+                    }
+                }
+            }
+
+            else
+            {
+                printf("Invalid input.\n");
+            }
         }
     }
 }
