@@ -1153,7 +1153,6 @@ void undo(char *dir)
 
 void printlines(int startline, int end)
 {
-
     for (int i = startline; i < startline + LINES - 4; i++)
     {
         if (i < end)
@@ -1162,6 +1161,7 @@ void printlines(int startline, int end)
         }
     }
 }
+
 int main()
 {
     initscr();
@@ -1188,6 +1188,8 @@ int main()
 
         attron(COLOR_PAIR(1));
 
+        clearlines();
+
         clearline();
         fgets(line, COLS, file);
         while (line[0] != '\0') // getting lines in array
@@ -1204,37 +1206,17 @@ int main()
 
         wmove(stdscr, LINES - 2, 0); // mode and file
         printw("%s | %s", mode, directory);
-
         wmove(stdscr, LINES - 1, 0);
-        input();
-
-        while (s[COUNTER][0] != '\0')
-        {
-            if (strcmp(s[COUNTER], "=D") == 0)
-            {
-                arman = COUNTER;
-            }
-            COUNTER++;
-        }
-
-        if (strcmp(s[0], ":q") == 0)
-        {
-            break;
-        }
-
-        else if (strcmp(s[0], ":open") == 0)
-        {
-            cleardir();
-            strcpy(directory, s[1] + 1);
-            continue;
-        }
+        printw("<type : to enter command>");
+        move(0, 8);
 
         noecho();
         char c;
         int startx = 8;
         int starty = 0;
         int startline = 0;
-        while (1) // insert mode
+
+        while (1)
         {
             c = getch();
             if (c == 'w')
@@ -1253,32 +1235,9 @@ int main()
             {
                 startx--;
             }
-            else if (c == 27)
+            else if (c == ':')
             {
                 break;
-            }
-            else if (c == 'i')
-            {
-                int count = 0;
-                c = getch();
-                while (c != '\n')
-                {
-                    for (int i = strlen(lines[starty + startline]); i > startx - 8 + count; i--)
-                    {
-                        lines[starty + startline][i] = lines[starty + startline][i - 1];
-                    }
-                    lines[starty + startline][startx - 8 + count] = c;
-                    count++;
-
-                    clear();
-                    echo();
-                    printlines(startline, counter);
-                    move(starty, startx + count);
-                    noecho();
-
-                    c = getch();
-                }
-                startx = startx + count;
             }
 
             if (starty < 0)
@@ -1305,7 +1264,6 @@ int main()
             {
                 startline = 0;
             }
-
             if (startline >= counter - LINES + 5)
             {
                 startline = counter - LINES + 4;
@@ -1313,11 +1271,87 @@ int main()
 
             clear();
             printlines(startline, counter);
+            wmove(stdscr, LINES - 2, 0); // mode and file
+            printw("%s | %s", mode, directory);
+            wmove(stdscr, LINES - 1, 0);
+            printw("<type : to enter command>");
 
             move(starty, startx);
             refresh();
         }
+
         echo();
+        clear();
+        printlines(startline, counter);
+        wmove(stdscr, LINES - 2, 0);
+        printw("%s | %s", mode, directory);
+        wmove(stdscr, LINES - 1, 0);
+        printw(":");
+        input();
+
+        if (strcmp(s[0], "q") == 0)
+        {
+            break;
+        }
+
+        else if (strcmp(s[0], "open") == 0)
+        {
+            cleardir();
+            strcpy(directory, s[1] + 1);
+            continue;
+        }
+
+        else if (strcmp(s[0], "i") == 0)
+        {
+
+            clear();
+            move(0, 0);
+            printlines(startline, counter);
+            wmove(stdscr, LINES - 2, 0); // mode and file
+            printw("%s | %s", "INSERT", directory);
+            wmove(stdscr, LINES - 1, 0);
+            printw("<press enter to get out>");
+
+            move(starty, startx);
+
+            noecho();
+
+            char c;
+            int count = 0;
+            c = getch();
+            while (c != '\n')
+            {
+                for (int i = strlen(lines[starty + startline]); i > startx - 8 + count; i--)
+                {
+                    lines[starty + startline][i] = lines[starty + startline][i - 1];
+                }
+                lines[starty + startline][startx - 8 + count] = c;
+                count++;
+
+                echo();
+                clear();
+                printlines(startline, counter);
+                wmove(stdscr, LINES - 2, 0); // mode and file
+                printw("%s | %s", "INSERT", directory);
+                wmove(stdscr, LINES - 1, 0);
+                printw("<press enter to get out>");
+                refresh();
+                noecho();
+
+                move(starty, startx + count);
+                c = getch();
+            }
+            startx = startx + count;
+        }
+
+        /*while (s[COUNTER][0] != '\0')
+        {
+            if (strcmp(s[COUNTER], "=D") == 0)
+            {
+                arman = COUNTER;
+            }
+            COUNTER++;
+        }*/
 
         /*else if (strcmp(s[0], ":createfile") == 0) // createfile
         {
@@ -1626,9 +1660,9 @@ int main()
             }
         }
         */
-        noecho();
+        /*noecho();
         getch();
-        echo();
+        echo();*/
         fclose(file);
     }
     endwin();
