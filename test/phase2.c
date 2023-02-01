@@ -1162,6 +1162,18 @@ void printlines(int startline, int end)
     }
 }
 
+void printinfile(char *directory)
+{
+    FILE *file = fopen(directory, "w");
+    int counter = 0;
+    while (lines[counter][0] != '\0')
+    {
+        fprintf(file, "%s", lines[counter]);
+        counter++;
+    }
+    fclose(file);
+}
+
 int main()
 {
     initscr();
@@ -1321,12 +1333,25 @@ int main()
             c = getch();
             while (c != '\n')
             {
-                for (int i = strlen(lines[starty + startline]); i > startx - 8 + count; i--)
+                if (c > 31 && c < 127)
                 {
-                    lines[starty + startline][i] = lines[starty + startline][i - 1];
+                    for (int i = strlen(lines[starty + startline]); i > startx - 8 + count; i--)
+                    {
+                        lines[starty + startline][i] = lines[starty + startline][i - 1];
+                    }
+                    lines[starty + startline][startx - 8 + count] = c;
+                    count++;
                 }
-                lines[starty + startline][startx - 8 + count] = c;
-                count++;
+
+                if (c == 127)
+                {
+                    for (int i = startx - 9 + count; i < strlen(lines[starty + startline]) - 1; i++)
+                    {
+                        lines[starty + startline][i] = lines[starty + startline][i + 1];
+                    }
+                    lines[starty + startline][strlen(lines[starty + startline]) - 1] = '\0';
+                    count--;
+                }
 
                 echo();
                 clear();
@@ -1341,6 +1366,8 @@ int main()
                 move(starty, startx + count);
                 c = getch();
             }
+            createcopy("/test.txt");
+            printinfile(directory);
             startx = startx + count;
         }
 
