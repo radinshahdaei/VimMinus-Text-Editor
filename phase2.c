@@ -1277,7 +1277,8 @@ int main()
 {
     initscr();
     start_color();
-    init_pair(1, COLOR_BLACK, COLOR_RED);
+    init_pair(2, COLOR_BLACK, COLOR_RED);
+    init_pair(1, COLOR_WHITE, COLOR_BLACK);
 
     char save = '\0';
 
@@ -1401,7 +1402,7 @@ int main()
                 {
                     if (hlight[i][0] < LINES - 4)
                     {
-                        mvchgat(hlight[i][0] + startline, hlight[i][1] + 9, 2, COLOR_PAIR(1), 1, NULL);
+                        mvchgat(hlight[i][0] + startline, hlight[i][1] + 9, 2, COLOR_PAIR(2), 1, NULL);
                     }
                 }
 
@@ -1551,9 +1552,13 @@ int main()
             remove(buff + 1);
 
             command = 0;
-            cleardir();
-            clearmsg();
-            strcpy(directory, s[1]);
+
+            if (fopen(s[1] + 1, "r") != 0)
+            {
+                cleardir();
+                clearmsg();
+                strcpy(directory, s[1]);
+            }
             continue;
         }
 
@@ -1745,7 +1750,7 @@ int main()
                 {
                     command++;
                     copystr(directory, miny + 1, minx, select_len, 'f');
-                    // removestr(directory, miny + 1, minx, select_len, 'f');
+                    removestr(directory, miny + 1, minx, select_len, 'f');
                     break;
                 }
 
@@ -1755,7 +1760,7 @@ int main()
                 wmove(stdscr, LINES - 2, 0); // mode and file
                 printw("%s | %s %c", mode, directory + 1, save);
                 wmove(stdscr, LINES - 1, 0);
-                printw("%d %d %d %d %d", miny, minx, maxy, maxx, select_len);
+                printw("c for copy, x for cut, DEL for delete, ENTER to get out");
 
                 move(starty, startx);
                 for (int i = 0; i < LINES - 4; i++)
@@ -1763,24 +1768,6 @@ int main()
                     mvchgat(i, 0, -1, A_NORMAL, 1, NULL);
                 }
                 move(starty, startx);
-
-                // HIGHLIGHTING
-                /*
-                if (y > starty)
-                {
-                    maxy = y;
-                    maxx = x;
-                    miny = starty;
-                    minx = startx;
-                }
-
-                else if (y < starty)
-                {
-                    maxy = starty;
-                    maxx = startx;
-                    miny = y;
-                    minx = x;
-                }
 
                 if (y == starty)
                 {
@@ -1793,7 +1780,17 @@ int main()
                         mvchgat(starty, startx, x - startx, A_STANDOUT, 1, NULL);
                     }
                 }
-                */
+
+                else
+                {
+                    mvchgat(miny, minx + 8, strlen(lines[miny]) - minx, A_STANDOUT, 1, NULL);
+                    for (int i = miny + 1; i < maxy; i++)
+                    {
+                        mvchgat(i, 9, strlen(lines[i]), A_STANDOUT, 1, NULL);
+                    }
+                    mvchgat(maxy, 9, maxx, A_STANDOUT, 1, NULL);
+                }
+
                 refresh();
                 createcopy(directory);
                 printinfile(directory);
@@ -2151,7 +2148,7 @@ int main()
                     }
                 }
             }
-                }
+        }
 
         else if (strcmp(s[0], "tree") == 0) // tree
         {
